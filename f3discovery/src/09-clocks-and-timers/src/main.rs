@@ -25,7 +25,7 @@ fn delay(tim6: &tim6::RegisterBlock, ms: u16) {
     // expect to see it speed up in release mode; the loop should be very
     // optimized!
 
-    for _ in 0..103*ms {
+    for _ in 0..1000*(ms as u32) {
         aux9::nop()
     }
 }
