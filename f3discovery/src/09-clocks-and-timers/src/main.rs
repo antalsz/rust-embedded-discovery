@@ -30,7 +30,7 @@ fn main() -> ! {
     tim6.cr1.write(|w| w.opm().set_bit().cen().clear_bit());
     tim6.psc.write(|w| w.psc().bits(7_999));
 
-    let ms = 1000;
+    let ms = 50;
     loop {
         for curr in 0..8 {
             let next = (curr + 1) % 8;
