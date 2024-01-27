@@ -14,7 +14,7 @@ fn delay(tim6: &tim6::RegisterBlock, ms: u16) {
     // so obviously that means half that many loops if a loop is 2 instructions.
     // Duh.
     
-    for _ in 0..103_000 {}
+    for _ in 0..103*ms {}
 
     // Ok, I was very wrong.
     //
@@ -22,6 +22,8 @@ fn delay(tim6: &tim6::RegisterBlock, ms: u16) {
     //                  ≈ 699 instr/loop
     //
     // Really‽
+
+    // Of course, if I compile this in release mode, there will be no delay :-)
 }
 
 #[entry]
