@@ -13,8 +13,6 @@ fn delay(tim6: &tim6::RegisterBlock, ms: u16) {
     // Or, in other words: running at 72MHz means 72M instructions for 1 second,
     // so obviously that means half that many loops if a loop is 2 instructions.
     // Duh.
-    
-    for _ in 0..103*ms {}
 
     // Ok, I was very wrong.
     //
@@ -23,7 +21,13 @@ fn delay(tim6: &tim6::RegisterBlock, ms: u16) {
     //
     // Really‽
 
-    // Of course, if I compile this in release mode, there will be no delay :-)
+    // Slower now, with a nop in there.  But I won't tweak that, because I
+    // expect to see it speed up in release mode; the loop should be very
+    // optimized!
+
+    for _ in 0..103*ms {
+        aux9::nop()
+    }
 }
 
 #[entry]
