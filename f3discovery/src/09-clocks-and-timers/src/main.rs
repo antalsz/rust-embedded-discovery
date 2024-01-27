@@ -10,9 +10,13 @@ fn delay(tim6: &tim6::RegisterBlock, ms: u16) {
     // 1 kHz = 8 MHz / (psc + 1)
     // (psc + 1) = 8 MHz / 1 kHz = 8×10⁶ Hz / 1×10³ Hz = 8×10³ = 8,000
     // psc = 7,999
+
+    // The one thing I missed is that you should disable the counter first in
+    // case somebody else left it running.
+    tim6.cr1.write(|w| w.opm().set_bit().cen().clear_bit());
     tim6.psc.write(|w| w.psc().bits(7_999));
     tim6.arr.write(|w| w.arr().bits(ms));
-    tim6.cr1.write(|w| w.opm().set_bit().cen().set_bit());
+    tim6.cr1.write(|w| w.cen().set_bit());
     while tim6.sr.read().uif().is_clear() { }
     tim6.sr.write(|w| w.uif().clear_bit());
 }
