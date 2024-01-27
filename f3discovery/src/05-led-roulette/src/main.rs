@@ -13,11 +13,10 @@ fn main() -> ! {
 
     loop {
         for i in 0..num_leds {
-            leds[i].on().ok();
-            delay.delay_ms(2*unit);
             leds[(i+1) % num_leds].on().ok();
             delay.delay_ms(unit);
             leds[i].off().ok();
+            delay.delay_ms(unit);
         }
     }
 }
