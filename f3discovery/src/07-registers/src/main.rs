@@ -4,9 +4,9 @@
 use core::ptr;
 
 #[allow(unused_imports)]
-use aux7::{entry, iprint, iprintln};
+use aux7::{entry, iprint, iprintln, ITM};
 
-fn _fun_blink_steps(itm: &mut aux7::ITM) -> () {
+fn _fun_blink_steps(itm: &mut ITM) -> () {
     fn off_on(off_on: u8) -> u32 {
         ((!off_on) as u32) << (8+16) | (off_on as u32) << 8
     }
@@ -32,8 +32,19 @@ fn _fun_blink_steps(itm: &mut aux7::ITM) -> () {
 
 #[entry]
 fn main() -> ! {
-    let (mut _itm, _) = aux7::init();
-    // _fun_blink_steps(&mut _itm);
+    let gpioe = aux7::init().1;
+
+    // Turn on the "North" LED (red)
+    gpioe.bsrr.write(|w| w.bs9().set_bit());
+
+    // Turn on the "East" LED (green)
+    gpioe.bsrr.write(|w| w.bs11().set_bit());
+
+    // Turn off the "North" LED
+    gpioe.bsrr.write(|w| w.br9().set_bit());
+
+    // Turn off the "East" LED
+    gpioe.bsrr.write(|w| w.br11().set_bit());
 
     loop {}
 }
