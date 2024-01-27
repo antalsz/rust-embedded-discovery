@@ -25,9 +25,20 @@ fn delay(tim6: &tim6::RegisterBlock, ms: u16) {
     // expect to see it speed up in release mode; the loop should be very
     // optimized!
 
-    for _ in 0..1000*(ms as u32) {
+    // To make them more similar: maybe a loop and an if?
+    let mut i = 0;
+    let max = 1000*(ms as u32);
+    loop {
+        if i > max {
+            break;
+        }
+        i += 1;
         aux9::nop()
     }
+
+    // That worked *okay*.  There's also the version where we just paste large
+    // blocks of `aux9::nop()` into the loop body, say a thousand or so, so the
+    // loop overhead is minimal.  But… yuck.
 }
 
 #[entry]
