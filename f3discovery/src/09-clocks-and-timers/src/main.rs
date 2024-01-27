@@ -5,40 +5,16 @@ use aux9::{entry, switch_hal::OutputSwitch, tim6};
 
 #[inline(never)]
 fn delay(tim6: &tim6::RegisterBlock, ms: u16) {
-    // Processor is 72MHz + most instructions are 1 tick
-    // Guess: loop is 2 instructions
-    // Thus, computation:
-    //     1 instr * 72 MHz = 72×10⁶ instr/sec
-    //     72×10⁶ instr/sec / 2 instr/loop = 72×10⁶/2 instr/loop
-    // Or, in other words: running at 72MHz means 72M instructions for 1 second,
-    // so obviously that means half that many loops if a loop is 2 instructions.
-    // Duh.
-
-    // Ok, I was very wrong.
-    //
-    //     X instr/loop = 72×10⁶ instr/sec / 103×10³ loop/sec
-    //                  ≈ 699 instr/loop
-    //
-    // Really‽
-
-    // Slower now, with a nop in there.  But I won't tweak that, because I
-    // expect to see it speed up in release mode; the loop should be very
-    // optimized!
-
-    // To make them more similar: maybe a loop and an if?
-    let mut i = 0;
-    let max = 1000*(ms as u32);
-    loop {
-        if i > max {
-            break;
-        }
-        i += 1;
-        aux9::nop()
-    }
-
-    // That worked *okay*.  There's also the version where we just paste large
-    // blocks of `aux9::nop()` into the loop body, say a thousand or so, so the
-    // loop overhead is minimal.  But… yuck.
+    // Clock frequency is 8 MHz / (psc + 1)
+    // Goal: Clock frequency is 1/ms = 1/(10⁻³ Hz) = 1 kHz
+    // 1 kHz = 8 MHz / (psc + 1)
+    // (psc + 1) = 8 MHz / 1 kHz = 8×10⁶ Hz / 1×10³ Hz = 8×10³ = 8,000
+    // psc = 7,999
+    tim6.psc.write(|w| w.psc().bits(7_999));
+    tim6.arr.write(|w| w.arr().bits(ms));
+    tim6.cr1.write(|w| w.opm().set_bit().cen().set_bit());
+    while tim6.sr.read().uif().is_clear() { }
+    tim6.sr.write(|w| w.uif().clear_bit());
 }
 
 #[entry]
@@ -46,9 +22,9 @@ fn main() -> ! {
     let (leds, rcc, tim6) = aux9::init();
     let mut leds = leds.into_array();
 
-    // TODO initialize TIM6
+    rcc.apb1enr.write(|w| w.tim6en().set_bit());
 
-    let ms = 50;
+    let ms = 1000;
     loop {
         for curr in 0..8 {
             let next = (curr + 1) % 8;
