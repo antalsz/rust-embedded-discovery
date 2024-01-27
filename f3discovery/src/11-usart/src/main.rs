@@ -9,9 +9,11 @@ fn main() -> ! {
     let (usart1, _mono_timer, _itm) = aux11::init();
 
     // Send a single character
-    usart1
-        .tdr
-        .write(|w| w.tdr().bits(u16::from(b'X')) );
+    b"The quick brown fox jumps over the lazy dog.".iter().for_each(|c| {
+        usart1
+            .tdr
+            .write(|w| w.tdr().bits(u16::from(*c)) );
+    });
 
     loop {}
 }
