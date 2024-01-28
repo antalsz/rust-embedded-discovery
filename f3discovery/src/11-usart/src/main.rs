@@ -60,8 +60,7 @@ fn main() -> ! {
     loop {
         match serial.read_byte() {
             b'\r' => {
-                serial.write_bytes(buffer.iter().rev().cloned());
-                uprintln!(serial, "");
+                serial.write_bytes(buffer.iter().rev().chain(b"\r\n").cloned());
                 buffer.clear();
             },
             byte => match buffer.push(byte) {
