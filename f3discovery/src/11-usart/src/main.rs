@@ -40,12 +40,10 @@ impl fmt::Write for SerialPort {
 fn main() -> ! {
     let (usart1, _mono_timer, _itm) = aux11::init();
 
-    while usart1.isr.read().rxne().bit_is_clear() {};
-    let x = usart1.rdr.read().rdr().bits();
-
-    let mut serial = SerialPort { usart1 };
-
-    uprintln!(serial, "The answer is {}", x);
-
-    loop {}
+    loop {
+        while usart1.isr.read().rxne().bit_is_clear() {}
+        let value = usart1.rdr.read().rdr().bits();
+        while usart1.isr.read().txe().bit_is_clear() {};
+        usart1.tdr.write(|w| w.tdr().bits(value));
+    }
 }
