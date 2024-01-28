@@ -16,10 +16,10 @@ macro_rules! uprint {
 
 macro_rules! uprintln {
     ($serial:expr, $fmt:expr) => {
-        uprint!($serial, concat!($fmt, "\n"))
+        uprint!($serial, concat!($fmt, "\r\n"))
     };
     ($serial:expr, $fmt:expr, $($arg:tt)*) => {
-        uprint!($serial, concat!($fmt, "\n"), $($arg)*)
+        uprint!($serial, concat!($fmt, "\r\n"), $($arg)*)
     };
 }
 
